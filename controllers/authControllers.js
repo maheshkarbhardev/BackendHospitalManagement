@@ -17,7 +17,7 @@ const upload = multer({ storage }).single("image");
 
 //user Register API
 
-exports.signUpUser = (req, res) => {
+exports.registerUser = (req, res) => {
   upload(req, res, async function (err) {
     if (err) {
       console.log("Multer Error:-", err);
