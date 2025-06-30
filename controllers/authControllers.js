@@ -1,6 +1,7 @@
 const db = require("../config/db");
 const bcrypt = require("bcryptjs");
 const multer = require("multer");
+const jwt = require("jsonwebtoken");
 
 //configure multer for image uploading
 
@@ -52,5 +53,56 @@ exports.registerUser = (req, res) => {
       console.log("Signup Error:- ", error);
       res.status(500).json({ message: "Server Error" });
     }
+  });
+};
+
+//login api
+
+exports.login = (req, res) => {
+  const { email, password } = req.body;
+
+  const query = "SELECT * FROM users WHERE email=?";
+
+  db.query(query, [email], (err, result) => {
+    if (err) {
+      return res.status(400).json({ message: "Database Error", error: err });
+    }
+
+    if (result.length === 0) {
+      return res.status(404).json({ message: "User Not Found." });
+    }
+
+    const user = result[0];
+    const isMatch = bcrypt.compareSync(password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid Credentials." });
+    }
+
+    const token = jwt.sign(
+      {
+        user_id: user.user_id,
+        email: user.email,
+        role: user.role,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1d",
+      }
+    );
+
+    res.status(200).json({
+      message: "Login Successfully.",
+      token,
+      role: user.role,
+      user: {
+        user_id: user.user_id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        image_path: user.image_path,
+      },
+    });
   });
 };
