@@ -7,6 +7,7 @@ const authRouter=require('./routes/authRoutes');
 const patientRoute=require('./routes/patientRoutes');
 const doctorRoute=require('./routes/doctorRoutes');
 const admissionRoute=require('./routes/admissionRoutes');
+const appointmentRoute=require('./routes/appointmentRoutes');
 
 app.use(cors());
 app.use(express.json());
@@ -16,6 +17,7 @@ app.use("/api/auth",authRouter);
 app.use("/api/patient",patientRoute);
 app.use('/api/doctor',doctorRoute);
 app.use('/api/admission',admissionRoute);
+app.use('/api/appointment',appointmentRoute);
 
 const PORT = process.env.PORT;
 
