@@ -6,6 +6,7 @@ const db=require('./config/db');
 const authRouter=require('./routes/authRoutes');
 const patientRoute=require('./routes/patientRoutes');
 const doctorRoute=require('./routes/doctorRoutes');
+const admissionRoute=require('./routes/admissionRoutes');
 
 app.use(cors());
 app.use(express.json());
@@ -14,6 +15,7 @@ dotenv.config();
 app.use("/api/auth",authRouter);
 app.use("/api/patient",patientRoute);
 app.use('/api/doctor',doctorRoute);
+app.use('/api/admission',admissionRoute);
 
 const PORT = process.env.PORT;
 
