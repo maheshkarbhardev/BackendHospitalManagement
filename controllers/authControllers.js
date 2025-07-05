@@ -13,7 +13,7 @@ const storage = multer.diskStorage({
     cb(null, file.originalname); //use the original file name
   },
 });
-
+ 
 const upload = multer({ storage }).single("image");
 
 //user Register API
@@ -58,22 +58,18 @@ exports.registerUser = (req, res) => {
 
 //login api
 
-exports.login = (req, res) => {
+exports.login = async (req, res) => {
   const { email, password } = req.body;
 
-  const query = "SELECT * FROM users WHERE email=?";
+  try {
+    const [rows] = await db.query("SELECT * FROM users WHERE email=?", [email]);
 
-  db.query(query, [email], (err, result) => {
-    if (err) {
-      return res.status(400).json({ message: "Database Error", error: err });
-    }
-
-    if (result.length === 0) {
+    if (rows.length === 0) {
       return res.status(404).json({ message: "User Not Found." });
     }
 
-    const user = result[0];
-    const isMatch = bcrypt.compareSync(password, user.password);
+    const user = rows[0];
+    const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid Credentials." });
@@ -86,9 +82,7 @@ exports.login = (req, res) => {
         role: user.role,
       },
       process.env.JWT_SECRET,
-      {
-        expiresIn: "1d",
-      }
+      { expiresIn: "1d" }
     );
 
     res.status(200).json({
@@ -104,5 +98,8 @@ exports.login = (req, res) => {
         image_path: user.image_path,
       },
     });
-  });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
 };
