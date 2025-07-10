@@ -6,6 +6,6 @@ router.post('/createDoctor',doctorsController.createDoctor);
 router.get('/getAllDoctors',doctorsController.getAllDoctors);
 router.get('/getDoctorById/:id',doctorsController.getDoctorById);
 router.put('/updateDoctor/:id',doctorsController.updateDoctor);
-router.delete('/deleteDoctor/;id',doctorsController.deleteDoctor);
+router.delete('/deleteDoctor/:id',doctorsController.deleteDoctor);
 
 module.exports=router;
