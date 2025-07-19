@@ -44,7 +44,7 @@ exports.getAllDoctors = async (req, res) => {
     const [result] = await db.query(query);
     res.status(200).json(result);
   } catch (error) {
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ error: error.message });
   }
 
   //   db.query(query, (err, result) => {

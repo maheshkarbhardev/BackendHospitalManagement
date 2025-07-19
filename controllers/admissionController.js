@@ -1,72 +1,78 @@
 const db=require('../config/db');
 
 //api for create admissions
-exports.createAdmission=(req,res)=>{
-    const {patient_id, admission_date, discharge_date, diagnosis, attending_doctor_id}=req.body;
+exports.createAdmission=async(req,res)=>{
+    const{patient_id, admission_date, discharge_date, diagnosis, attending_doctor_id}=req.body;
 
-    const query="INSERT INTO admissions (patient_id, admission_date, discharge_date, diagnosis, attending_doctor_id) VALUES (?,?,?,?,?)";
+    const query=`INSERT INTO admissions (patient_id, admission_date, discharge_date, diagnosis, attending_doctor_id) VALUES (?,?,?,?,?)`;
 
-    db.query(query,[patient_id, admission_date, discharge_date, diagnosis, attending_doctor_id],(err,result)=>{
-        if(err){
-            return res.status(400).json({error:err})
-        }
-        res.status(200).json({message:"Admission Created Successfully."})
-    })
+    try{
+        const [result]=await db.query(query,[patient_id, admission_date, discharge_date, diagnosis, attending_doctor_id]);
+
+        res.status(200).json({
+            id:result.insertId,patient_id, admission_date, discharge_date, diagnosis, attending_doctor_id
+        })
+    }
+    catch(error){
+        res.status(400).json({error:error.message})
+    }
 }
 
 //api for get all admissions
-exports.getAllAdmissions=(req,res)=>{
-    const query="SELECT * FROM admissions ORDER BY admission_date DESC";
+exports.getAllAdmissions=async(req,res)=>{
+    const query="SELECT * FROM admissions";
 
-    db.query(query,(err,result)=>{
-        if(err){
-            return res.status(400).json({error:err})
-        }
-        res.status(200).json(result)
-    })
+    try {
+        const [result]=await db.query(query);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(400).json({error:error.message})
+    }
 };
 
 //api for get admission by id
-exports.getAdmissionById=(req,res)=>{
+exports.getAdmissionById=async(req,res)=>{
     const id=req.params.id;
-    const query="SELECT * FROM admissions WHERE id=?";
+    const query="SELECT * FROM admissions WHERE admission_id=?";
 
-    db.query(query,[id],(err,result)=>{
-        if(err){
-            return res.status(400).json({error:err})
+    try {
+        const [result]=await db.query(query,[id]);
+        if(result.length === 0){
+            return res.status(404).json({message:"Admission Details Not Found."})
         }
-        if(result.length===0){
-            return res.status(404).json({error:"Admission Details Not Found."})
-        }
-        res.status(200).json(result[0])
-    })
+        res.status(200).json(result[0]);
+    } catch (error) {
+        res.status(400).json({error:error.message})
+    }
 };
 
 //api for update admission details.
-exports.updateAdmission=(req,res)=>{
+exports.updateAdmission=async(req,res)=>{
     const id=req.params.id;
     const {patient_id, admission_date, discharge_date, diagnosis, attending_doctor_id}=req.body;
 
-    const query="UPDATE admissions SET patient_id=? , admission_date=? , discharge_date=? ,diagnosis=? , attending_doctor_id=? WHERE id=?";
+    const query = `UPDATE admissions SET patient_id=?, admission_date=?, discharge_date=?, diagnosis=?, attending_doctor_id=? WHERE admission_id=?`;
 
-    db.query(query,[patient_id, admission_date, discharge_date, diagnosis, attending_doctor_id,id],(err,result)=>{
-        if(err){
-            return res.status(400).json({error:err})
-        }
-        res.status(200).json({message:"Admission Details Updated Successfully."})
-    })
+    try {
+        await db.query(query,[patient_id, admission_date, discharge_date, diagnosis, attending_doctor_id,id]);
+        res.status(200).json({
+            admission_id:id,patient_id, admission_date, discharge_date, diagnosis, attending_doctor_id            
+        })
+    } catch (error) {
+        res.status(400).json({error:error.message})
+    }
 }
 
 //api for delete admission
-exports.deleteAdmission=(req,res)=>{
+exports.deleteAdmission=async(req,res)=>{
     const id=req.params.id;
 
-    const query="DELETE FROM admissions WHERE id=?";
+    const query="DELETE FROM admissions WHERE admission_id=?";
 
-    db.query(query,[id],(err,result)=>{
-        if(err){
-            return res.status(400).json({error:err})
-        }
-        res.status(200).json({message:"Admission Details Deleted Successfully."})
-    })
+    try {
+        await db.query(query,[id]);
+        res.status(200).json({message:"Doctor Deleted Successfully.",id})
+    } catch (error) {
+        res.status(400).json({error:error.message})
+    }
 }
